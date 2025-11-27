@@ -1,0 +1,57 @@
+﻿@model Apetrei_Alexandru_Lab4.TimePredictionModel.ModelInput
+@{
+    ViewData["Title"] = "Time Prediction Using ML.NET";
+}
+
+<h2>Time Prediction using ML.NET</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Time">
+            <div asp-validation-summary="ModelOnly" class="textdanger"></div>
+
+            <div class="form-group">
+                <label asp-for="Passenger_count" class="controllabel"></label>
+                <input asp-for="Passenger_count" type="number" class="form-control" />
+                <span asp-validation-for="Passenger_count" class="textdanger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Trip_distance" class="controllabel"></label>
+                <input asp-for="Trip_distance" class="form-control" />
+                <span asp-validation-for="Trip_distance" class="textdanger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Payment_type" class="controllabel"></label>
+                <select asp-for="Payment_type" class="form-control">
+                    <option value="CSH">Cash</option>
+                    <option value="CRD">Credit</option>
+                </select>
+                <span asp-validation-for="Payment_type" class="textdanger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Check" class="btn btn-default" />
+            </div>
+        </form>
+    </div>
+
+    <div class="col-md-offset-2 col-md-4">
+        @if (ViewBag.Time != null)
+        {
+            <h1>Result</h1>
+            var totalSeconds = (float)ViewBag.Time;
+            var minutes = (int)(totalSeconds / 60);
+            var seconds = (int)(totalSeconds % 60);
+
+            <h2>Estimated Duration: @minutes minutes @seconds seconds</h2>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
