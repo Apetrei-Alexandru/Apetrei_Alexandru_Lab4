@@ -1,51 +1,61 @@
 ﻿@model Apetrei_Alexandru_Lab4.PricePredictionModel.ModelInput
 @{
- ViewData["Title"] = "Price Prediction Using ML.NET";
+    ViewData["Title"] = "Price Prediction Using ML.NET";
 }
+
 <h2>Price Prediction using ML.NET</h2>
 <hr />
+
 <div class="row">
- <div class="col-md-4">
- <form asp-action="Price">
- <div asp-validation-summary="ModelOnly" class="textdanger"></div>
- <div class="form-group">
- <label asp-for="Passenger_count" class="controllabel"></label>
- <input asp-for="Passenger_count" type="number" class="formcontrol" />
- <span asp-validation-for="Passenger_count" class="textdanger"></span>
- </div>
- <div class="form-group">
- <label asp-for="Trip_time_in_secs" class="controllabel"></label>
- <input asp-for="Trip_time_in_secs" class="form-control" />
- <span asp-validation-for="Trip_time_in_secs" class="textdanger"></span>
- </div>
+    <div class="col-md-4">
+        <form asp-action="Price" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <div class="form-group">
-                <label asp-for="Trip_distance" class="controllabel"></label>
-                <input asp-for="Trip_distance" class="form-control" />
-                <span asp-validation-for="Trip_distance" class="textdanger"></span>
+                <label asp-for="Passenger_count" class="control-label"></label>
+                <input asp-for="Passenger_count" type="number" min="1" max="6" step="1" class="form-control" />
+                <span asp-validation-for="Passenger_count" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label asp-for="Payment_type" class="controllabel"></label>
+                <label asp-for="Trip_time_in_secs" class="control-label"></label>
+                <input asp-for="Trip_time_in_secs" type="number" min="1" step="1" class="form-control" />
+                <span asp-validation-for="Trip_time_in_secs" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Trip_distance" class="control-label"></label>
+                <input asp-for="Trip_distance" type="number" min="0.1" step="0.1" class="form-control" />
+                <span asp-validation-for="Trip_distance" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Payment_type" class="control-label"></label>
                 <select asp-for="Payment_type" class="form-control">
-                    <option value="CSH">Cash</option>
-                    <option value="CRD">Credit</option>
+                    <option value="">-- Select Payment Type --</option>
+                    <option value="cash">Cash</option>
+                    <option value="card">Credit</option>
                 </select>
-                <span asp-validation-for="Payment_type" class="textdanger"></span>
+                <span asp-validation-for="Payment_type" class="text-danger"></span>
             </div>
+
+
             <div class="form-group">
                 <input type="submit" value="Check" class="btn btn-default" />
             </div>
         </form>
     </div>
-    <div class="col-md-offset-2 col-md-4">
+
+    <div class="col-md-4 offset-md-2">
         @if (ViewBag.Price != null)
         {
+            var price = (float)ViewBag.Price;
             <h1>Result</h1>
-            <h2>Fare Price:@ViewBag.Price</h2>
+            <h2>Estimated Fare: @price $</h2>
         }
     </div>
 </div>
+
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }
