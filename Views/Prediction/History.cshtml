@@ -1,0 +1,27 @@
+﻿@model IEnumerable<PredictionHistory>
+<h2>Istoric predicții</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Pasageri</th>
+            <th>Distanță</th>
+            <th>Timp (sec)</th>
+            <th>Tip plată</th>
+            <th>Preț prezis</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CreatedAt</td>
+                <td>@item.PassengerCount</td>
+                <td>@item.TripDistance</td>
+                <td>@item.TripTimeInSecs</td>
+                <td>@item.PaymentType</td>
+                <td>@item.PredictedPrice</td>
+            </tr>
+        }
+    </tbody>
+</table>

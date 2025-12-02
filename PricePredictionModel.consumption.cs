@@ -41,7 +41,8 @@ namespace Apetrei_Alexandru_Lab4
 
             [LoadColumn(5)]
             [ColumnName("payment_type")]
-            //[RegularExpression("Cash|Credit", ErrorMessage = "Tipul de plată trebuie să fie 'cash' sau 'credit'.")]
+            [Required(ErrorMessage = "Tipul de plată este obligatoriu.")]
+            [RegularExpression("CSH|CRD", ErrorMessage = "Tipul de plată trebuie să fie 'CSH' sau 'CRD'.")]
             public string Payment_type { get; set; }
 
             [LoadColumn(6)]
