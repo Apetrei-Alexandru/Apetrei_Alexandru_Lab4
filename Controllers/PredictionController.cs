@@ -1,6 +1,7 @@
-﻿using Apetrei_Alexandru_Lab4.Models;
-using Apetrei_Alexandru_Lab4.Data;
+﻿using Apetrei_Alexandru_Lab4.Data;
+using Apetrei_Alexandru_Lab4.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.ML;
 
@@ -59,12 +60,65 @@ namespace Apetrei_Alexandru_Lab4.Controllers
 
         // GET: Istoricul predicțiilor
         [HttpGet]
-        public async Task<IActionResult> History()
+        public async Task<IActionResult> History(
+    string? paymentType,
+    float? minPrice,
+    float? maxPrice,
+    DateTime? startDate,
+    DateTime? endDate,
+    string? sortOrder)
         {
-            var history = await _context.PredictionHistories
-                .OrderByDescending(p => p.CreatedAt)
-                .ToListAsync();
-            return View(history);
+            var query = _context.PredictionHistories.AsQueryable();
+
+            // Filtrare paymentType
+            if (!string.IsNullOrEmpty(paymentType))
+            {
+                query = query.Where(p => p.PaymentType == paymentType);
+            }
+
+            // Filtrare preț
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.PredictedPrice >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.PredictedPrice <= maxPrice.Value);
+            }
+
+            // Filtrare interval date
+            if (startDate.HasValue)
+            {
+                query = query.Where(p => p.CreatedAt >= startDate.Value);
+            }
+
+            if (endDate.HasValue)
+            {
+                query = query.Where(p => p.CreatedAt <= endDate.Value);
+            }
+
+            // Sortare
+            query = sortOrder switch
+            {
+                "price_asc" => query.OrderBy(p => p.PredictedPrice),
+                "price_desc" => query.OrderByDescending(p => p.PredictedPrice),
+                "date_asc" => query.OrderBy(p => p.CreatedAt),
+                "date_desc" => query.OrderByDescending(p => p.CreatedAt),
+                _ => query.OrderByDescending(p => p.CreatedAt) // default
+            };
+
+            // Păstrarea valorilor în ViewBag
+            ViewBag.CurrentPaymentType = paymentType;
+            ViewBag.CurrentMinPrice = minPrice;
+            ViewBag.CurrentMaxPrice = maxPrice;
+            ViewBag.CurrentStartDate = startDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentEndDate = endDate?.ToString("yyyy-MM-dd");
+            ViewBag.CurrentSortOrder = sortOrder;
+
+            var result = await query.ToListAsync();
+            return View(result);
         }
+
     }
 }

@@ -1,21 +1,105 @@
 ﻿@model IEnumerable<PredictionHistory>
+
 <h2>Istoric predicții</h2>
+
+<form method="get" asp-action="History" class="row g-3 mb-3">
+
+    <div class="col-md-3">
+        <label class="form-label">Tip plată</label>
+        <select name="paymentType" class="form-select">
+            <option value="">Toate</option>
+            <option value="CARD" selected="@(ViewBag.CurrentPaymentType == "CARD")">Card</option>
+            <option value="CASH" selected="@(ViewBag.CurrentPaymentType == "CASH")">Cash</option>
+            <option value="OTHER" selected="@(ViewBag.CurrentPaymentType == "OTHER")">Altele</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Preț minim</label>
+        <input type="number" step="0.01" name="minPrice"
+               value="@(ViewBag.CurrentMinPrice ?? "")"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Preț maxim</label>
+        <input type="number" step="0.01" name="maxPrice"
+               value="@(ViewBag.CurrentMaxPrice ?? "")"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Data început</label>
+        <input type="date" name="startDate"
+               value="@(ViewBag.CurrentStartDate ?? "")"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2">
+        <label class="form-label">Data sfârșit</label>
+        <input type="date" name="endDate"
+               value="@(ViewBag.CurrentEndDate ?? "")"
+               class="form-control" />
+    </div>
+
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary">Filtrează</button>
+    </div>
+</form>
+
 <table class="table table-striped">
     <thead>
         <tr>
-            <th>Data</th>
+            <th>
+                Data
+                <a asp-action="History"
+                   asp-route-paymentType="@ViewBag.CurrentPaymentType"
+                   asp-route-minPrice="@ViewBag.CurrentMinPrice"
+                   asp-route-maxPrice="@ViewBag.CurrentMaxPrice"
+                   asp-route-startDate="@ViewBag.CurrentStartDate"
+                   asp-route-endDate="@ViewBag.CurrentEndDate"
+                   asp-route-sortOrder="date_asc">↑</a>
+
+                <a asp-action="History"
+                   asp-route-paymentType="@ViewBag.CurrentPaymentType"
+                   asp-route-minPrice="@ViewBag.CurrentMinPrice"
+                   asp-route-maxPrice="@ViewBag.CurrentMaxPrice"
+                   asp-route-startDate="@ViewBag.CurrentStartDate"
+                   asp-route-endDate="@ViewBag.CurrentEndDate"
+                   asp-route-sortOrder="date_desc">↓</a>
+            </th>
+
             <th>Pasageri</th>
             <th>Distanță</th>
             <th>Timp (sec)</th>
             <th>Tip plată</th>
-            <th>Preț prezis</th>
+
+            <th>
+                Preț prezis
+                <a asp-action="History"
+                   asp-route-paymentType="@ViewBag.CurrentPaymentType"
+                   asp-route-minPrice="@ViewBag.CurrentMinPrice"
+                   asp-route-maxPrice="@ViewBag.CurrentMaxPrice"
+                   asp-route-startDate="@ViewBag.CurrentStartDate"
+                   asp-route-endDate="@ViewBag.CurrentEndDate"
+                   asp-route-sortOrder="price_asc">↑</a>
+
+                <a asp-action="History"
+                   asp-route-paymentType="@ViewBag.CurrentPaymentType"
+                   asp-route-minPrice="@ViewBag.CurrentMinPrice"
+                   asp-route-maxPrice="@ViewBag.CurrentMaxPrice"
+                   asp-route-startDate="@ViewBag.CurrentStartDate"
+                   asp-route-endDate="@ViewBag.CurrentEndDate"
+                   asp-route-sortOrder="price_desc">↓</a>
+            </th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.CreatedAt</td>
+                <td>@item.CreatedAt.ToString("yyyy-MM-dd HH:mm")</td>
                 <td>@item.PassengerCount</td>
                 <td>@item.TripDistance</td>
                 <td>@item.TripTimeInSecs</td>
