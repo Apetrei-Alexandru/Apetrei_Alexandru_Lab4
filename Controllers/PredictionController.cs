@@ -122,33 +122,45 @@ namespace Apetrei_Alexandru_Lab4.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(DateTime? fromDate, DateTime? toDate)
         {
-            // 1. Numărul total de predicții
-            var totalPredictions = await _context.PredictionHistories.CountAsync();
-            // 2. Preț mediu per tip de plată + număr de predicții per tip
-            var paymentTypeStats = await _context.PredictionHistories
-            .GroupBy(p => p.PaymentType)
-            .Select(g => new PaymentTypeStat
-            {
-                PaymentType = g.Key,
-                AveragePrice = g.Average(x => x.PredictedPrice),
-                Count = g.Count()
-            })
-            .ToListAsync();
-            // 3. Distribuția prețurilor pe intervale (buckets)
-            // Definim intervalele: 0-10, 10-20, 20-30, 30-50, >50 (exemplu)
-            var allPredictions = await _context.PredictionHistories
-            .Select(p => p.PredictedPrice)
-            .ToListAsync();
+            // 1. Cream query-ul de bază
+            var query = _context.PredictionHistories.AsQueryable();
+
+            if (fromDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date >= fromDate.Value.Date);
+
+            if (toDate.HasValue)
+                query = query.Where(p => p.CreatedAt.Date <= toDate.Value.Date);
+
+            // 2. Numărul total de predicții
+            var totalPredictions = await query.CountAsync();
+
+            // 3. Preț mediu per tip de plată + număr predicții per tip
+            var paymentTypeStats = await query
+                .GroupBy(p => p.PaymentType)
+                .Select(g => new PaymentTypeStat
+                {
+                    PaymentType = g.Key,
+                    AveragePrice = g.Average(x => x.PredictedPrice),
+                    Count = g.Count()
+                })
+                .ToListAsync();
+
+            // 4. Distribuția prețurilor pe intervale
+            var allPredictions = await query
+                .Select(p => p.PredictedPrice)
+                .ToListAsync();
+
             var buckets = new List<PriceBucketStat>
-            {
-                new PriceBucketStat { Label = "0 - 10" },
-                new PriceBucketStat { Label = "10 - 20" },
-                new PriceBucketStat { Label = "20 - 30" },
-                new PriceBucketStat { Label = "30 - 50" },
-                new PriceBucketStat { Label = "> 50" }
-            };
+    {
+        new PriceBucketStat { Label = "0 - 10" },
+        new PriceBucketStat { Label = "10 - 20" },
+        new PriceBucketStat { Label = "20 - 30" },
+        new PriceBucketStat { Label = "30 - 50" },
+        new PriceBucketStat { Label = "> 50" }
+    };
+
             foreach (var price in allPredictions)
             {
                 if (price < 10)
@@ -162,15 +174,19 @@ namespace Apetrei_Alexandru_Lab4.Controllers
                 else
                     buckets[4].Count++;
             }
-            // 4. Construim ViewModel-ul
+
+            // 5. Construim ViewModel-ul
             var vm = new DashboardViewModel
             {
                 TotalPredictions = totalPredictions,
                 PaymentTypeStats = paymentTypeStats,
-                PriceBuckets = buckets
+                PriceBuckets = buckets,
+                FromDate = fromDate,
+                ToDate = toDate
             };
-            return View(vm);
 
+            return View(vm);
         }
+
     }
 }

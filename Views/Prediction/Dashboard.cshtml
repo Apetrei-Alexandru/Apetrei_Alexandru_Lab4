@@ -3,7 +3,26 @@
 @{
     ViewData["Title"] = "Dashboard predicții";
 }
+
 <h2>Dashboard predicții</h2>
+
+<!-- Formular pentru filtrarea după interval de date -->
+<form method="get" asp-action="Dashboard" class="row g-3 mb-4">
+    <div class="col-md-3">
+        <label class="form-label">De la data</label>
+        <input type="date" name="fromDate" class="form-control"
+               value="@(Model.FromDate?.ToString("yyyy-MM-dd") ?? "")" />
+    </div>
+    <div class="col-md-3">
+        <label class="form-label">Până la data</label>
+        <input type="date" name="toDate" class="form-control"
+               value="@(Model.ToDate?.ToString("yyyy-MM-dd") ?? "")" />
+    </div>
+    <div class="col-md-2 align-self-end">
+        <button type="submit" class="btn btn-primary w-100">Filtrează</button>
+    </div>
+</form>
+
 <div class="row mb-4">
     <!-- Card: Total predicții -->
     <div class="col-md-4">
@@ -14,6 +33,7 @@
             </div>
         </div>
     </div>
+
     <!-- Card: Tipuri de plată + medii -->
     <div class="col-md-8">
         <div class="card mb-3">
@@ -45,53 +65,53 @@
 
 <!-- Secțiune: Grafic distribuție prețuri -->
 <div class="row">
- <div class="col-md-12">
- <div class="card mb-3">
- <div class="card-body">
- <h5 class="card-title">Distribuția prețurilor prezise</h5>
- <canvas id="priceChart" height="100"></canvas>
- </div>
- </div>
- </div>
+    <div class="col-md-12">
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Distribuția prețurilor prezise</h5>
+                <canvas id="priceChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
 </div>
+
 @section Scripts {
- <!-- Chart.js din CDN -->
- <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- <script>
- // Pregătim datele pentru grafic din Model.PriceBuckets
- const labels = @Html.Raw(JsonSerializer.Serialize(Model.PriceBuckets.Select(b
-=> b.Label)));
- const dataValues =
-@Html.Raw(JsonSerializer.Serialize(Model.PriceBuckets.Select(b => b.Count)));
- const ctx = document.getElementById('priceChart').getContext('2d');
- const priceChart = new Chart(ctx, {
- type: 'bar',
- data: {
- labels: labels,
- datasets: [{
- label: 'Număr de predicții',
- data: dataValues,
- borderWidth: 1
- }]
- },
- options: {
- responsive: true,
- scales: {
- y: {
- beginAtZero: true,
-     title: {
-     display: true,
-     text: 'Număr predicții'
-     }
-     },
-     x: {
-     title: {
-     display: true,
-     text: 'Interval preț (unitatea modelului)'
-     }
-     }
-     }
-     }
-     });
-</script>
+    <!-- Chart.js din CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        // Pregătim datele pentru grafic din Model.PriceBuckets
+        const labels = @Html.Raw(JsonSerializer.Serialize(Model.PriceBuckets.Select(b => b.Label)));
+        const dataValues = @Html.Raw(JsonSerializer.Serialize(Model.PriceBuckets.Select(b => b.Count)));
+
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        const priceChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Număr de predicții',
+                    data: dataValues,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Număr predicții'
+                        }
+                    },
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Interval preț (unitatea modelului)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 }
